@@ -13,7 +13,6 @@ export async function runAppleScript(
 	return executeAppleScriptAsync({
 		script,
 		humanReadableOutput,
-		sync: false,
 		spawnOrExec,
 		args,
 	});
@@ -27,7 +26,6 @@ export function runAppleScriptSync(
 	return executeAppleScriptSync({
 		script,
 		humanReadableOutput,
-		sync: true,
 		spawnOrExec,
 		args,
 	});
@@ -63,16 +61,18 @@ function prepareScript(script) {
 function executeAppleScriptSync({
 	script,
 	humanReadableOutput = true,
-	args = [],
+	args,
 	spawnOrExec = 'spawn',
 }) {
-	const outputArguments = humanReadableOutput ? [] : ['-ss'];
+	if (!humanReadableOutput) {
+		args.push('-ss');
+	}
 
 	// ExecFile - Sync
 	if (spawnOrExec === 'exec') {
 		const stdout = execFileSync(
 			'osascript',
-			[...prepareScript(script), ...args, ...outputArguments],
+			[...prepareScript(script), ...args],
 			{
 				encoding: 'utf8',
 				stdio: ['ignore', 'pipe', 'ignore'],
@@ -85,7 +85,7 @@ function executeAppleScriptSync({
 	// Spawn - Sync
 	const result = spawnSync(
 		'osascript',
-		[...prepareScript(script), ...args, ...outputArguments],
+		[...prepareScript(script), ...args],
 		{
 			stdio: ['ignore', 'pipe', 'ignore'],
 		},
@@ -103,17 +103,18 @@ function executeAppleScriptSync({
 async function executeAppleScriptAsync({
 	script,
 	humanReadableOutput = true,
-	args = [],
+	args,
 	spawnOrExec = 'spawn',
 }) {
-	const outputArguments = humanReadableOutput ? [] : ['-ss'];
+	if (!humanReadableOutput) {
+		args.push('-ss');
+	}
 
 	// ExecFile - Async
 	if (spawnOrExec === 'exec') {
 		const {stdout} = await execFileAsync('osascript', [
 			...prepareScript(script),
 			...args,
-			...outputArguments,
 		]);
 		return stdout.trim();
 	}
@@ -122,7 +123,6 @@ async function executeAppleScriptAsync({
 	const child = spawn('osascript', [
 		...prepareScript(script),
 		...args,
-		...outputArguments,
 	]);
 	return new Promise((resolve, reject) => {
 		let stdout = '';
