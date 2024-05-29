@@ -1,5 +1,6 @@
+import {fileURLToPath} from 'node:url';
 import test from 'ava';
-import {runAppleScript, runAppleScriptSync} from './index.js';
+import {runAppleScript, runAppleScriptSync} from '../index.js';
 
 test('exec - async', async t => {
 	t.is(await runAppleScript('return "unicorn"'), 'unicorn');
@@ -55,4 +56,16 @@ test('argument passing', async t => {
 
 test('multiline script with args', async t => {
 	t.is(await runAppleScript('on run argv\nreturn item 1 of argv\nend run', {args: ['unicorn', 'cake']}), 'unicorn');
+});
+
+test('run file - doesn\'t exist', async t => {
+	await t.throwsAsync(runAppleScript('foo.scpt'), {message: 'AppleScript does not exist to run: foo.scpt'});
+});
+
+test('run file - exists', async t => {
+	t.is(await runAppleScript(fileURLToPath(new URL('applescripts/test.scpt', import.meta.url))), 'unicorn');
+});
+
+test('run file - with arguments', async t => {
+	t.is(await runAppleScript(fileURLToPath(new URL('applescripts/test-args.scpt', import.meta.url)), {args: ['unicorn', 'cake']}), 'unicorn');
 });

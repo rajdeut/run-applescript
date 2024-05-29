@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import process from 'node:process';
 import {promisify} from 'node:util';
 import {spawn, spawnSync, execFile, execFileSync} from 'node:child_process';
@@ -40,6 +41,17 @@ function platformCheck() {
 
 function prepareScript(script) {
 	if (!Array.isArray(script)) {
+		// Check if the script string is a file path && file exists
+		if (script.endsWith('.scpt') || script.endsWith('.applescript')) {
+			if (fs.existsSync(script)) {
+				return [script];
+			}
+
+			throw new Error(
+				`AppleScript does not exist to run: ${script}`,
+			);
+		}
+
 		script = script.split('\n');
 	}
 
