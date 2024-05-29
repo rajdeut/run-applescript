@@ -1,6 +1,6 @@
 {
 	"name": "run-applescript",
-	"version": "7.1.0",
+	"version": "7.1.1",
 	"description": "Run AppleScript and get the result",
 	"license": "MIT",
 	"repository": "sindresorhus/run-applescript",
@@ -24,7 +24,8 @@
 	},
 	"files": [
 		"index.js",
-		"index.d.ts"
+		"index.d.ts",
+        "src/**.js"
 	],
 	"keywords": [
 		"macos",
